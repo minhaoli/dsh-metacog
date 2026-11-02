@@ -1,0 +1,30 @@
+# 依赖
+node_modules/
+.npm-cache/
+.pnpm-store/
+
+# 外部运行时依赖副本（pypdf 等，由环境自行安装）
+_pylibs/
+
+# 运行时数据（每个项目的监控记录，含路径与活动内容，不随源码分发）
+.metacog/
+
+# 测试与调试日志
+*.log
+test-*.log
+.npmtest.log
+
+# 调试产物
+derivation-output.json
+tuangfu-output.json
+sched-src.txt
+
+# 构建缓存
+*.tsbuildinfo
+dist/
+
+# 编辑器与系统
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

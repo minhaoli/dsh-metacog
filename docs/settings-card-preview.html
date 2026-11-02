@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>元认知监控 · 设置卡预览</title>
+<style>
+  /* The card lives inside the host's settings page, so it must not fight the page
+     it sits in: no global resets, no page-level background, everything scoped under
+     `.metacog`. These tokens mirror the host's own so the card does not look like a
+     foreign object dropped into the settings list. */
+  .metacog {
+    --bg: #ffffff;
+    --bg-soft: #f7f8fa;
+    --bg-inset: #f0f2f5;
+    --border: #e3e6ec;
+    --text: #1c1f24;
+    --text-dim: #6b7280;
+    --text-faint: #9aa1ac;
+    --accent: #2563eb;
+    --accent-soft: #eff4ff;
+    --warn: #b45309;
+    --warn-soft: #fef6e7;
+    --danger: #b91c1c;
+    --danger-soft: #fdecec;
+    --ok: #15803d;
+    --ok-soft: #ecf7ef;
+
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+      "Microsoft YaHei", sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--text);
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 24px 20px 64px;
+  }
+  @media (prefers-color-scheme: dark) {
+    .metacog {
+      --bg: #17191d;
+      --bg-soft: #1d2025;
+      --bg-inset: #14161a;
+      --border: #2b2f36;
+      --text: #e6e8eb;
+      --text-dim: #9aa1ac;
+      --text-faint: #6b7280;
+      --accent: #6ea0ff;
+      --accent-soft: #1e293b;
+      --warn: #e0a458;
+      --warn-soft: #2a2118;
+      --danger: #f2777a;
+      --danger-soft: #2c1a1a;
+      --ok: #6fcf97;
+      --ok-soft: #17251c;
+    }
+  }
+
+  .metacog *, .metacog *::before, .metacog *::after { box-sizing: border-box; }
+
+  .metacog h1 { font-size: 18px; font-weight: 600; margin: 0 0 4px; }
+  .metacog h2 {
+    font-size: 13px; font-weight: 600; letter-spacing: .02em;
+    color: var(--text-dim); margin: 0 0 12px; text-transform: none;
+  }
+  .metacog p { margin: 0; }
+  .metacog .lead { color: var(--text-dim); font-size: 13px; margin-bottom: 20px; }
+
+  .metacog .card {
+    background: var(--bg-soft);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 18px;
+    margin-bottom: 14px;
+  }
+  .metacog .card.tight { padding: 14px 16px; }
+
+  .metacog .row {
+    display: flex; align-items: baseline; justify-content: space-between;
+    gap: 12px; padding: 5px 0;
+  }
+  .metacog .row + .row { border-top: 1px solid var(--border); }
+  .metacog .k { color: var(--text-dim); font-size: 13px; flex: 0 0 auto; }
+  .metacog .v {
+    font-variant-numeric: tabular-nums;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 13px; text-align: right;
+  }
+
+  .metacog .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  @media (max-width: 560px) { .metacog .stats { grid-template-columns: repeat(2, 1fr); } }
+  .metacog .stat {
+    background: var(--bg-inset); border: 1px solid var(--border);
+    border-radius: 8px; padding: 10px 12px;
+  }
+  .metacog .stat .n {
+    font-size: 20px; font-weight: 600; font-variant-numeric: tabular-nums;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  .metacog .stat .l { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
+
+  .metacog button {
+    font: inherit; font-size: 13px; cursor: pointer;
+    border-radius: 7px; border: 1px solid var(--border);
+    background: var(--bg); color: var(--text);
+    padding: 6px 12px; transition: background .12s ease, border-color .12s ease;
+  }
+  .metacog button:hover:not(:disabled) { background: var(--bg-inset); }
+  .metacog button:disabled { opacity: .5; cursor: not-allowed; }
+  .metacog button.primary {
+    background: var(--accent); border-color: var(--accent); color: #fff;
+  }
+  .metacog button.primary:hover:not(:disabled) { filter: brightness(1.08); }
+  .metacog button.danger {
+    background: var(--danger-soft); border-color: var(--danger); color: var(--danger);
+  }
+  .metacog .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  .metacog input[type="text"], .metacog select {
+    font: inherit; font-size: 13px;
+    border: 1px solid var(--border); border-radius: 7px;
+    background: var(--bg); color: var(--text);
+    padding: 6px 10px; width: 100%;
+  }
+  .metacog input:focus, .metacog select:focus {
+    outline: 2px solid var(--accent-soft); outline-offset: 1px;
+    border-color: var(--accent);
+  }
+  .metacog label.field { display: block; margin-bottom: 10px; }
+  .metacog label.field > span {
+    display: block; font-size: 12px; color: var(--text-dim); margin-bottom: 4px;
+  }
+
+  .metacog .note {
+    font-size: 12px; color: var(--text-dim);
+    background: var(--bg-inset); border-radius: 7px;
+    padding: 9px 11px; margin-top: 10px;
+  }
+  .metacog .warn { background: var(--warn-soft); color: var(--warn); }
+  .metacog .danger-note {
+    background: var(--danger-soft); color: var(--danger);
+    border: 1px solid color-mix(in srgb, var(--danger) 30%, transparent);
+  }
+
+  .metacog .badge {
+    display: inline-block; font-size: 11px; padding: 1px 7px;
+    border-radius: 999px; background: var(--bg-inset); color: var(--text-dim);
+    border: 1px solid var(--border);
+  }
+  .metacog .badge.ok { background: var(--ok-soft); color: var(--ok); border-color: transparent; }
+  .metacog .badge.warn { background: var(--warn-soft); color: var(--warn); border-color: transparent; }
+
+  .metacog details summary {
+    cursor: pointer; font-size: 13px; color: var(--text-dim);
+    list-style: none; user-select: none;
+  }
+  .metacog details summary::-webkit-details-marker { display: none; }
+  .metacog details summary::before {
+    content: "▸"; display: inline-block; width: 14px;
+    transition: transform .12s ease;
+  }
+  .metacog details[open] summary::before { transform: rotate(90deg); }
+  .metacog details > div { margin-top: 12px; }
+
+  .metacog .preview {
+    background: var(--bg-inset); border: 1px solid var(--border);
+    border-radius: 8px; padding: 12px 14px; margin-top: 10px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 12px; white-space: pre-wrap; word-break: break-word;
+    max-height: 260px; overflow: auto;
+  }
+  .metacog .sr {
+    position: absolute; width: 1px; height: 1px; overflow: hidden;
+    clip: rect(0 0 0 0); white-space: nowrap;
+  }
+</style>
+</head>
+<body>
+<div class="metacog">
+  <h1>元认知监控</h1>
+  <p class="lead">目标与矛盾的判定、报告与记录都在这里。改配置会写进本插件的 config，不影响全局设置。</p>
+
+  <!-- 项目选择 -->
+  <div class="card tight">
+    <label class="field" style="margin-bottom:0">
+      <span>当前项目</span>
+      <select id="project">
+        <option value="">（还没有已确认的目标树）</option>
+      </select>
+    </label>
+  </div>
+
+  <!-- 概览 -->
+  <div class="card">
+    <h2>概览</h2>
+    <div class="stats">
+      <div class="stat"><div class="n" id="s-activities">—</div><div class="l">活动记录</div></div>
+      <div class="stat"><div class="n" id="s-signals">—</div><div class="l">漂移信号</div></div>
+      <div class="stat"><div class="n" id="s-pending">—</div><div class="l">待复核判定</div></div>
+      <div class="stat"><div class="n" id="s-cards">—</div><div class="l">待决策卡片</div></div>
+      <div class="stat"><div class="n" id="s-reports">—</div><div class="l">报告</div></div>
+      <div class="stat"><div class="n" id="s-goals">—</div><div class="l">目标 / 已完成</div></div>
+    </div>
+    <div class="note" id="usage-note"></div>
+  </div>
+
+  <!-- LLM -->
+  <div class="card">
+    <h2>模型</h2>
+    <div class="row"><span class="k">提供方</span><span class="v" id="llm-provider">—</span></div>
+    <div class="row"><span class="k">模型</span><span class="v" id="llm-model">—</span></div>
+    <div class="note warn" id="llm-note"></div>
+  </div>
+
+  <!-- 静默模式 -->
+  <div class="card">
+    <h2>静默模式</h2>
+    <div class="row">
+      <span class="k">只记录，不打扰</span>
+      <label><input type="checkbox" id="q-enabled"> <span class="badge" id="q-state">关闭</span></label>
+    </div>
+    <div class="row">
+      <span class="k">仍拦截破坏性操作</span>
+      <label><input type="checkbox" id="q-hardblock" checked></label>
+    </div>
+    <div class="row">
+      <span class="k">连提示块也关掉</span>
+      <label><input type="checkbox" id="q-prompt"></label>
+    </div>
+    <div class="note">静默只关打扰，不关判断。采集、评分、落盘照常，结论仍然进报告。</div>
+  </div>
+
+  <!-- 动作 -->
+  <div class="card">
+    <h2>动作</h2>
+    <div class="actions">
+      <button class="primary" id="btn-report">生成日报</button>
+      <button id="btn-report-weekly">周报</button>
+      <button id="btn-sweep">立即巡检</button>
+      <button id="btn-archive">归档信号</button>
+    </div>
+    <div class="note" id="action-note">巡检只跑静态检查与文件扫描；模型复核需要会话上下文。</div>
+    <div class="preview" id="report-preview" hidden></div>
+  </div>
+
+  <!-- 里程碑归档 -->
+  <div class="card">
+    <h2>里程碑归档</h2>
+    <p style="font-size:12px;color:var(--text-dim);margin-bottom:12px">
+      把当前目标树和判定统计一起存下来。以后问「换了树之后判断有没有变好」时，两半都在。
+    </p>
+    <label class="field"><span>名称</span><input type="text" id="ms-label" placeholder="例如 v4-confirmed"></label>
+    <label class="field"><span>为什么记这一笔</span><input type="text" id="ms-note" placeholder="几个月后你自己会忘"></label>
+    <div class="actions"><button id="btn-milestone">归档里程碑</button></div>
+  </div>
+
+  <!-- 危险区 -->
+  <div class="card">
+    <details>
+      <summary>危险操作：清空记录</summary>
+      <div>
+        <div class="note danger-note">
+          这是真删除，不能撤销。删的是活动、信号、判定、观察、卡片、报告、快照和信号状态；<strong>目标树不动</strong>。
+          要输入项目 id 才能确认——布尔勾选会被条件反射地点掉，打 id 需要真的读一遍。
+        </div>
+        <label class="field" style="margin-top:12px">
+          <span>输入当前项目 id 以确认</span>
+          <input type="text" id="purge-confirm" placeholder="dsh_____-7856756f" autocomplete="off">
+        </label>
+        <label class="field"><span>为什么清空（写进审计）</span><input type="text" id="purge-reason"></label>
+        <div class="actions"><button class="danger" id="btn-purge" disabled>永久删除记录</button></div>
+        <div class="preview" id="purge-preview" hidden></div>
+      </div>
+    </details>
+  </div>
+
+  <p class="note" style="margin-top:20px">
+    这是静态预览页，数据是假的。真实卡片在 设置 → 元认知监控。
+  </p>
+</div>
+
+<script>
+// A standalone preview: the layout and copy are real, the data is not.
+// Wiring it to /api/metacog would make it a second client to keep in sync, and the
+// point of this file is to settle the design before it goes into client.js.
+const demo = {
+  goals: 8, doneGoals: 2,
+  activities: 2369, signals: 1459, pendingJudgments: 157,
+  pendingInterventions: 3, reports: 24,
+  llm: { provider: 'deepseek', model: 'deepseek-v4.1-flash' },
+}
+
+const $ = (id) => document.getElementById(id)
+$('s-activities').textContent = demo.activities.toLocaleString()
+$('s-signals').textContent = demo.signals.toLocaleString()
+$('s-pending').textContent = demo.pendingJudgments
+$('s-cards').textContent = demo.pendingInterventions
+$('s-reports').textContent = demo.reports
+$('s-goals').textContent = `${demo.doneGoals} / ${demo.goals}`
+$('usage-note').textContent = '活动流里没有 token 用量，这里不编造数字。上面是记录条数，不是费用。'
+$('llm-provider').textContent = demo.llm.provider
+$('llm-model').textContent = demo.llm.model
+$('llm-note').textContent =
+  '复核与巡检沿用这个模型。插件没有自己的模型配置——改这里会改到全局，所以这张卡只显示，不提供控件。'
+
+$('q-enabled').addEventListener('change', (event) => {
+  const on = event.target.checked
+  const badge = $('q-state')
+  badge.textContent = on ? '开启' : '关闭'
+  badge.className = 'badge ' + (on ? 'warn' : '')
+})
+
+const preview = $('report-preview')
+$('btn-report').addEventListener('click', () => {
+  preview.hidden = false
+  preview.textContent = `# 日报 2026-10-29
+
+## 本期完成
+目标 2/8 完成（25%），矛盾 1/2 已解决
+完成目标：宿主接入（depth-1）
+
+## 监控状态
+- 本期 2369 条活动（汇报 100、工具 1721、用户 539…）
+- 无待决策卡片
+
+## 按目标看活动
+- 宿主接入（depth-1）：812 条，占 34%（已完成）
+- 验证层（depth-1）：604 条，占 25%
+- 未归属到任何目标：431 条，占 18%
+
+## 本期活动
+- 涉及 14 个目录、231 个文件`
+})
+
+$('btn-report-weekly').addEventListener('click', () => {
+  preview.hidden = false
+  preview.textContent = '周报会多出目标树结构变更、矛盾强度变化、规则健康度三节。'
+})
+
+$('btn-sweep').addEventListener('click', () => {
+  $('action-note').textContent = '巡检完成：扫描 231 个文件，0 处变化，0 条新信号。'
+})
+
+$('btn-archive').addEventListener('click', () => {
+  $('action-note').textContent = '已归档 1459 条信号。等级统计从零开始，历史仍在归档文件里。'
+})
+
+$('btn-milestone').addEventListener('click', () => {
+  $('action-note').textContent = '已归档版本 12 的快照与判定统计。'
+})
+
+// The button stays disabled until the typed id matches, so the guard is visible
+// rather than only enforced after a click.
+const confirmInput = $('purge-confirm')
+const purgeButton = $('btn-purge')
+confirmInput.addEventListener('input', () => {
+  purgeButton.disabled = confirmInput.value.trim() !== 'dsh_____-7856756f'
+})
+purgeButton.addEventListener('click', () => {
+  const box = $('purge-preview')
+  box.hidden = false
+  box.textContent = '已删除：activities, signals, judgments, observations, interventions, reports, snapshots, signal-state\n文件 2,341 个，18.4 MB\n目标树未受影响。'
+})
+</script>
+</body>
+</html>

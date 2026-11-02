@@ -1,0 +1,11 @@
+# dsh-metacog bundle patch: mount the metacognitive goal / contradiction monitor.
+#
+# Applied as ONE insert over the profile root. The loader resolves the plugin
+# module from the profile's node_modules under the `name` below, so `name` must
+# equal the package.json `name`.
+#
+# The user's own profile cordis.patch.yml is applied afterwards and may override
+# this row's whole `config` by id.
+- insert:
+    - id: dsh-metacog
+      name: dsh-metacog

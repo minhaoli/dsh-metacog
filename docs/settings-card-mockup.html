@@ -1,0 +1,768 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>元认知监控 · 设置页设计稿 v2</title>
+<style>
+  :root{
+    color-scheme: light dark;
+    --bg:#ffffff; --bg-soft:#f7f7f8; --bg-card:#ffffff;
+    --line:#e6e6e8; --line-soft:#f0f0f1;
+    --fg:#1a1a1c; --fg-2:#6b6b70; --fg-3:#9a9aa0;
+    --accent:#3b6fd4; --accent-soft:#eef3fd;
+    --ok:#2f8f5b; --warn:#b8761f; --err:#c0392b;
+    --bar-drift:#d98a8a; --bar-uncertain:#c9c9cf; --bar-explore:#8fb6d9; --bar-aligned:#7fb98f;
+    --code:#f2f2f4;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#151517; --bg-soft:#1b1b1e; --bg-card:#1e1e21;
+      --line:#2e2e33; --line-soft:#26262a;
+      --fg:#ececef; --fg-2:#9a9aa2; --fg-3:#6e6e76;
+      --accent:#7aa2ee; --accent-soft:#1f2a3d;
+      --ok:#5cc08a; --warn:#e0a458; --err:#e57373;
+      --bar-drift:#8f5a5a; --bar-uncertain:#4a4a52; --bar-explore:#4a6b85; --bar-aligned:#3f6b4c;
+      --code:#232327;
+    }
+  }
+  *{box-sizing:border-box}
+  body{margin:0; background:var(--bg); color:var(--fg);
+    font:13px/1.65 -apple-system,"Segoe UI","Microsoft YaHei",system-ui,sans-serif;}
+  .note{padding:9px 16px; background:var(--accent-soft); color:var(--fg-2);
+    font-size:12px; border-bottom:1px solid var(--line)}
+  .note b{color:var(--fg); font-weight:600}
+  .shell{display:grid; grid-template-columns:200px 1fr; min-height:calc(100vh - 40px)}
+  .nav{border-right:1px solid var(--line); background:var(--bg-soft); padding:14px 8px}
+  .nav h2{margin:0 8px 10px; font-size:12px; font-weight:600; color:var(--fg-3); letter-spacing:.04em}
+  .nav a{display:block; padding:6px 10px; margin:1px 0; border-radius:6px;
+    color:var(--fg-2); text-decoration:none; font-size:13px}
+  .nav a.on{background:var(--accent-soft); color:var(--accent); font-weight:600}
+  .nav .sep{height:1px; background:var(--line); margin:8px 10px}
+  .main{padding:22px 28px 70px; max-width:920px}
+  .head{display:flex; align-items:flex-start; gap:12px; margin-bottom:4px}
+  .head h1{margin:0; font-size:17px; font-weight:650}
+  .sub{color:var(--fg-2); font-size:12px; margin:2px 0 14px}
+  .badge{display:inline-flex; align-items:center; gap:5px; height:22px; padding:0 9px;
+    border-radius:999px; font-size:11px; font-weight:600; background:var(--accent-soft); color:var(--accent)}
+  .badge.gray{background:var(--bg-soft); color:var(--fg-2)}
+  .dot{width:6px; height:6px; border-radius:50%; background:currentColor}
+  /* 首次使用提示 */
+  .intro{border:1px solid var(--line); border-radius:10px; background:var(--bg-soft);
+    padding:12px 14px; margin-bottom:16px; font-size:12.5px; position:relative}
+  .intro h3{margin:0 0 6px; font-size:12.5px; font-weight:650}
+  .intro ol{margin:0; padding-left:18px; color:var(--fg-2)}
+  .intro ol li{margin:2px 0}
+  .intro .x{position:absolute; right:10px; top:8px; cursor:pointer; color:var(--fg-3); font-size:15px}
+  .tabs{display:flex; gap:2px; border-bottom:1px solid var(--line); margin:0 0 18px}
+  .tab{padding:7px 14px; font-size:13px; color:var(--fg-2); cursor:pointer;
+    border:none; background:none; border-bottom:2px solid transparent; margin-bottom:-1px}
+  .tab.on{color:var(--fg); border-bottom-color:var(--accent); font-weight:600}
+  .panel[hidden]{display:none}
+  .picker{display:flex; align-items:center; gap:10px; padding:10px 12px; margin-bottom:18px;
+    border:1px solid var(--line); border-radius:10px; background:var(--bg-card)}
+  select{font:inherit; padding:5px 8px; border-radius:6px; border:1px solid var(--line);
+    background:var(--bg); color:var(--fg); min-width:230px}
+  .meta{margin-left:auto; color:var(--fg-2); font-size:12px; text-align:right}
+  .card{border:1px solid var(--line); border-radius:10px; background:var(--bg-card);
+    padding:14px 16px; margin-bottom:14px}
+  .card-head{display:flex; align-items:center; gap:8px; margin-bottom:12px}
+  .card-head h3{margin:0; font-size:13px; font-weight:650}
+  .card-head .right{margin-left:auto; display:flex; gap:6px; align-items:center}
+  .hint{color:var(--fg-3); font-size:11.5px}
+  /* 帮助气泡 */
+  details.help{margin:0 0 12px; font-size:12px; color:var(--fg-2)}
+  details.help summary{cursor:pointer; color:var(--accent); font-size:12px; list-style:none}
+  details.help summary::-webkit-details-marker{display:none}
+  details.help summary::before{content:"？ "}
+  details.help div{margin-top:6px; padding:9px 11px; border-radius:8px;
+    background:var(--bg-soft); border:1px solid var(--line-soft); line-height:1.75}
+  details.help code{background:var(--code); padding:0 4px; border-radius:3px; font-size:11.5px}
+  .stats{display:grid; grid-template-columns:repeat(4,1fr); gap:10px}
+  .stat{padding:10px 12px; border-radius:8px; background:var(--bg-soft); position:relative}
+  .stat .k{font-size:11px; color:var(--fg-2)}
+  .stat .v{font-size:20px; font-weight:650; font-variant-numeric:tabular-nums; line-height:1.3}
+  .stat .d{font-size:11px; color:var(--fg-3)}
+  .stat.warnv .v{color:var(--warn)}
+  .dist{margin-top:14px}
+  .bar{display:flex; height:10px; border-radius:5px; overflow:hidden; background:var(--line-soft)}
+  .bar i{display:block}
+  .legend{display:flex; flex-wrap:wrap; gap:14px; margin-top:8px; font-size:11.5px; color:var(--fg-2)}
+  .legend span{display:inline-flex; align-items:center; gap:5px}
+  .legend b{font-weight:600; color:var(--fg); font-variant-numeric:tabular-nums}
+  .sw{width:8px; height:8px; border-radius:2px}
+  .warnline{padding:9px 12px; border-radius:8px; font-size:12px; line-height:1.7;
+    background:rgba(184,118,31,.1); color:var(--warn); border:1px solid rgba(184,118,31,.25)}
+  .okline{padding:9px 12px; border-radius:8px; font-size:12px;
+    background:rgba(47,143,91,.1); color:var(--ok); border:1px solid rgba(47,143,91,.25)}
+  .todo{display:flex; gap:10px; align-items:flex-start; padding:9px 0; border-bottom:1px solid var(--line-soft)}
+  .todo:last-child{border-bottom:none}
+  .tag{flex:0 0 auto; height:19px; padding:0 7px; border-radius:5px; font-size:11px;
+    display:inline-flex; align-items:center; font-weight:600}
+  .tag.warn{background:rgba(184,118,31,.14); color:var(--warn)}
+  .tag.info{background:var(--accent-soft); color:var(--accent)}
+  .tag.ok{background:rgba(47,143,91,.14); color:var(--ok)}
+  .tag.gray{background:var(--bg-soft); color:var(--fg-2)}
+  .todo .body{flex:1; min-width:0}
+  .todo .t{font-size:12.5px}
+  .todo .s{font-size:11.5px; color:var(--fg-2)}
+  .list{display:flex; flex-direction:column}
+  .row{display:flex; align-items:center; gap:10px; padding:8px 0;
+    border-bottom:1px solid var(--line-soft); font-size:12.5px}
+  .row:last-child{border-bottom:none}
+  .row .time{color:var(--fg-3); font-variant-numeric:tabular-nums; flex:0 0 66px}
+  .row .lv{flex:0 0 auto; font-size:11px; padding:0 6px; height:18px; border-radius:4px;
+    display:inline-flex; align-items:center; background:var(--bg-soft); color:var(--fg-2)}
+  .row .name{flex:0 0 130px; color:var(--fg)}
+  .row .txt{flex:1; color:var(--fg-2); overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+  .row .act{margin-left:auto; color:var(--accent); cursor:pointer; font-size:12px; white-space:nowrap}
+  .form{display:grid; grid-template-columns:190px 1fr; gap:10px 16px; align-items:center}
+  .form .k{color:var(--fg-2); font-size:12.5px}
+  .form .k small{display:block; color:var(--fg-3); font-size:11px; font-weight:400}
+  input[type=text],input[type=number]{font:inherit; padding:5px 8px; border-radius:6px;
+    border:1px solid var(--line); background:var(--bg); color:var(--fg); width:130px}
+  .switch{display:inline-flex; align-items:center; gap:8px; font-size:12.5px}
+  .track{width:34px; height:19px; border-radius:999px; background:var(--line); position:relative}
+  .track.on{background:var(--accent)}
+  .knob{position:absolute; top:2px; left:2px; width:15px; height:15px; border-radius:50%;
+    background:#fff; transition:.15s}
+  .track.on .knob{left:17px}
+  button.btn{font:inherit; height:27px; padding:0 11px; border-radius:6px; cursor:pointer;
+    border:1px solid var(--line); background:var(--bg); color:var(--fg)}
+  button.btn.primary{background:var(--accent); border-color:var(--accent); color:#fff}
+  button.btn.ghost{border-style:dashed; color:var(--fg-2)}
+  button.btn.sm{height:23px; padding:0 8px; font-size:11.5px}
+  pre.md{margin:10px 0 0; padding:12px 14px; border-radius:8px; background:var(--bg-soft);
+    font:12px/1.7 ui-monospace,"Cascadia Mono",Consolas,monospace;
+    white-space:pre-wrap; word-break:break-word; max-height:240px; overflow:auto}
+  .foot{margin-top:14px; display:flex; gap:8px; align-items:center}
+  .foot .hint{margin-left:auto}
+  /* ---------- 树视图 ---------- */
+  .subtabs{display:flex; gap:6px; margin-bottom:12px}
+  .subtab{padding:5px 12px; border-radius:999px; border:1px solid var(--line);
+    background:var(--bg); color:var(--fg-2); cursor:pointer; font-size:12px}
+  .subtab.on{background:var(--accent-soft); border-color:var(--accent); color:var(--accent); font-weight:600}
+  .tree-wrap{display:grid; grid-template-columns:1fr 340px; gap:14px; align-items:start}
+  .tree{border:1px solid var(--line); border-radius:10px; background:var(--bg-card);
+    padding:8px; overflow:auto; max-height:520px}
+  .node{display:flex; align-items:center; gap:7px; padding:6px 8px; border-radius:7px;
+    cursor:pointer; font-size:12.5px; line-height:1.4}
+  .node:hover{background:var(--bg-soft)}
+  .node.on{background:var(--accent-soft); box-shadow:inset 0 0 0 1px var(--accent)}
+  .node .d{flex:0 0 auto; font-size:10.5px; color:var(--fg-3); font-variant-numeric:tabular-nums;
+    width:20px; text-align:center}
+  .node .t{flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+  .node .crit{flex:0 0 auto; font-size:10.5px; color:var(--fg-3); font-variant-numeric:tabular-nums}
+  .node .crit.none{color:var(--warn); font-weight:600}
+  .st{flex:0 0 auto; font-size:10.5px; padding:0 5px; height:16px; border-radius:3px;
+    display:inline-flex; align-items:center; background:var(--bg-soft); color:var(--fg-2)}
+  .st.at_risk{background:rgba(184,118,31,.14); color:var(--warn)}
+  .st.done{background:rgba(47,143,91,.14); color:var(--ok)}
+  .detail{border:1px solid var(--line); border-radius:10px; background:var(--bg-card);
+    padding:14px; position:sticky; top:12px}
+  .detail h4{margin:0 0 3px; font-size:13.5px; font-weight:650}
+  .detail .path{color:var(--fg-3); font-size:11px; margin-bottom:12px}
+  .kv{display:grid; grid-template-columns:82px 1fr; gap:7px 10px; font-size:12px; margin-bottom:12px}
+  .kv .k{color:var(--fg-2)}
+  .kv .v{color:var(--fg); word-break:break-word}
+  .chips{display:flex; flex-wrap:wrap; gap:4px}
+  .chip{font-size:11px; padding:1px 7px; border-radius:999px; background:var(--bg-soft);
+    border:1px solid var(--line-soft); color:var(--fg-2)}
+  .chip.none{color:var(--warn); border-color:rgba(184,118,31,.35); background:rgba(184,118,31,.08)}
+  .editbar{display:flex; gap:6px; margin-top:12px; padding-top:12px; border-top:1px solid var(--line-soft)}
+  .field{margin-bottom:9px}
+  .field label{display:block; font-size:11.5px; color:var(--fg-2); margin-bottom:3px}
+  .field input,.field textarea,.field select{width:100%; font:inherit; font-size:12px;
+    padding:5px 8px; border-radius:6px; border:1px solid var(--line); background:var(--bg); color:var(--fg)}
+  .field textarea{min-height:56px; resize:vertical}
+  .intensity{display:flex; gap:4px; margin-top:4px}
+  .intensity button{width:26px; height:26px; border-radius:6px; border:1px solid var(--line);
+    background:var(--bg); color:var(--fg-2); cursor:pointer; font-size:12px}
+  .intensity button.on{background:var(--accent); border-color:var(--accent); color:#fff; font-weight:600}
+  .audit{font-size:11px; color:var(--fg-3); margin-top:10px; line-height:1.7}
+  table.gloss{width:100%; border-collapse:collapse; font-size:12px}
+  table.gloss th{text-align:left; color:var(--fg-2); font-weight:600; padding:6px 8px;
+    border-bottom:1px solid var(--line)}
+  table.gloss td{padding:6px 8px; border-bottom:1px solid var(--line-soft); vertical-align:top}
+  table.gloss td:first-child{white-space:nowrap; color:var(--fg); font-weight:600}
+  table.gloss td:nth-child(2){color:var(--fg-2)}
+</style>
+</head>
+<body>
+<div class="note">
+  设计稿 v2 · <b>静态</b>，数字取自 <b>dsh临时工作区</b> 的真实快照（2026-10-29 18:25），所以切换项目、点保存都不会真的变
+</div>
+<div class="shell">
+
+  <nav class="nav">
+    <h2>设置</h2>
+    <a href="#">账户</a><a href="#">通用</a><a href="#">模型</a><a href="#">插件</a>
+    <div class="sep"></div>
+    <a href="#" class="on">元认知监控</a>
+    <a href="#">撤销与快照</a><a href="#">定时任务</a><a href="#">插件市场</a>
+    <div class="sep"></div>
+    <a href="#">侧边栏</a><a href="#">移动端</a>
+  </nav>
+
+  <main class="main">
+    <div class="head">
+      <h1>元认知监控</h1>
+      <span class="badge"><i class="dot"></i>监控中</span>
+    </div>
+    <p class="sub">4 个工作区已建树 · 最后巡检 18:05 · 下次 19:05</p>
+
+    <div class="intro" id="intro">
+      <span class="x" onclick="document.getElementById('intro').remove()">×</span>
+      <h3>第一次用？三句话</h3>
+      <ol>
+        <li>它盯着「你在做的事」和「你声明的目标」对不对得上，对不上就记一条。</li>
+        <li>目标树是你写的判据，矛盾树是你承认的张力。判据写得越具体，判断越准。</li>
+        <li>现在 <b>8 个目标里有 6 个没写判据</b>，所以「对齐」永远是 0——这是当前最该修的事。</li>
+      </ol>
+    </div>
+
+    <div class="tabs">
+      <button class="tab on" data-tab="status">状态</button>
+      <button class="tab" data-tab="tree">目标树与矛盾树</button>
+      <button class="tab" data-tab="config">设置</button>
+    </div>
+
+    <!-- ==================== 状态 ==================== -->
+    <section class="panel" id="status">
+      <div class="picker">
+        <span class="hint">项目</span>
+        <select onchange="return false">
+          <option>dsh临时工作区 — 给 DSH 加一层元认知监控</option>
+          <option>喜临门横向2 — 睡眠实验室数据采集与预处理</option>
+          <option>朋友系统设计 — 造出受控自改的「朋友」系统</option>
+          <option>杂活 — 未建树</option>
+        </select>
+        <span class="meta">v6 已确认 · 8 目标 · 2 矛盾<br>更新于 10-28 18:46</span>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <h3>当前状态</h3>
+          <span class="right hint">全部历史</span>
+        </div>
+        <details class="help">
+          <summary>这几个数字是什么意思</summary>
+          <div>
+            <b>活动</b>：监控记下的每一条行为（改文件、跑命令、提问、汇报）。<br>
+            <b>待复核</b>：程序觉得可能偏了、但还没让模型看过的条数。<br>
+            <b>活跃信号</b>：已经升级到需要你注意的偏离记录；归档的是历史噪音。<br>
+            <b>分布条</b>：所有活动被判成了什么。判定只有四种，见下面图例。
+          </div>
+        </details>
+        <div class="stats">
+          <div class="stat"><div class="k">活动</div><div class="v">2,268</div><div class="d">今天 148</div></div>
+          <div class="stat"><div class="k">待复核</div><div class="v">358</div><div class="d">已复核 498</div></div>
+          <div class="stat"><div class="k">待决干预卡</div><div class="v">0</div><div class="d">已结 3 张</div></div>
+          <div class="stat"><div class="k">活跃信号</div><div class="v">1</div><div class="d">归档 1,459</div></div>
+        </div>
+        <div class="dist">
+          <div class="bar">
+            <i style="width:80.2%;background:var(--bar-drift)"></i>
+            <i style="width:14.8%;background:var(--bar-uncertain)"></i>
+            <i style="width:5.0%;background:var(--bar-explore)"></i>
+            <i style="width:0.05%;background:var(--bar-aligned)"></i>
+          </div>
+          <div class="legend">
+            <span><i class="sw" style="background:var(--bar-drift)"></i>偏离 <b>1,818</b></span>
+            <span><i class="sw" style="background:var(--bar-uncertain)"></i>待定 <b>336</b></span>
+            <span><i class="sw" style="background:var(--bar-explore)"></i>合理探索 <b>114</b></span>
+            <span><i class="sw" style="background:var(--bar-aligned)"></i>对齐 <b>0</b></span>
+          </div>
+        </div>
+        <div class="warnline" style="margin-top:12px">
+          这 1,818 条「偏离」里，绝大多数其实是<b>对不上任何目标</b>——而 8 个目标里有 6 个根本没写可匹配的判据。
+          所以这个 80% 反映的是判据缺口，不是你做的事真的跑偏了。<br>
+          <span style="color:var(--accent);cursor:pointer">去补判据 →</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><h3>需要你处理</h3></div>
+        <div class="todo">
+          <span class="tag warn">判据缺口</span>
+          <div class="body">
+            <div class="t">6 个目标没有可匹配判据</div>
+            <div class="s">「对齐」恒为 0 的直接原因。补 <code>relevantActivities</code> 或 <code>allowedMethods</code> 即可。</div>
+          </div>
+          <span class="act">去补 →</span>
+        </div>
+        <div class="todo">
+          <span class="tag info">待复核</span>
+          <div class="body">
+            <div class="t">358 条判定候选等待模型复核</div>
+            <div class="s">其中 293 条已等待超过 24 小时</div>
+          </div>
+          <span class="act">立即复核 →</span>
+        </div>
+        <div class="todo">
+          <span class="tag ok">无待办</span>
+          <div class="body">
+            <div class="t">没有待决干预卡</div>
+            <div class="s">最近一张在 10-28 14:20 已结案</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <h3>最近发现</h3>
+          <span class="right"><button class="btn ghost sm">查看全部</button></span>
+        </div>
+        <details class="help">
+          <summary>L0 / L1 / L2 / L3 是什么</summary>
+          <div>
+            监控发现异常后不会一律打断你，而是分级：<br>
+            <b>L0</b> 只记日志，不打扰。<b>L1</b> 在对话里提示一句。<br>
+            <b>L2</b> 弹一张卡要你选「继续 / 纠正 / 改目标 / 忽略」。<b>L3</b> 直接拦住危险操作。<br>
+            默认只到 L1；L2 要同类信号重复 3 次；L3 还要求核心矛盾强度 ≥ 4。
+          </div>
+        </details>
+        <div class="list">
+          <div class="row"><span class="time">18:05</span><span class="lv">L0</span>
+            <span class="name">deadline_risk</span>
+            <span class="txt">「验证层三」已走过 75% 时间，剩 2 天，没有推进记录</span></div>
+          <div class="row"><span class="time">17:40</span><span class="lv">L1</span>
+            <span class="name">scope_drift</span>
+            <span class="txt">偏离 2 个目标，置信度 0.82</span></div>
+          <div class="row"><span class="time">16:12</span><span class="lv">L1</span>
+            <span class="name">contradiction_shift</span>
+            <span class="txt">主要矛盾「证据严格性 vs 落地速度」强度 5 → 4</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><h3>判断可信度</h3></div>
+        <details class="help">
+          <summary>为什么要看这一块</summary>
+          <div>
+            监控说的每句话都有可信度差别。这里把「系统自己有多确定」摊开：<br>
+            <b>规则健康度</b>：程序报警后，模型复核认可了多少。100% 驳回说明规则在瞎报。<br>
+            <b>校准状态</b>：系统能不能把分数说成概率。现在不能，所以只给分数不给概率。<br>
+            <b>覆盖度</b>：一次判断用了多少可用特征。太低就不该给结论。
+          </div>
+        </details>
+        <div class="form" style="grid-template-columns:150px 1fr">
+          <div class="k">规则健康度</div>
+          <div>scope_drift 候选 856 · 已复核 498 · 驳回 498（<span style="color:var(--warn)">100%</span>）</div>
+          <div class="k">校准状态</div>
+          <div>未校准 <span class="hint">— 里程碑 B 之前只给分数</span></div>
+          <div class="k">覆盖度</div>
+          <div>未统计 <span class="hint">— 里程碑 A 落地后按目标算</span></div>
+        </div>
+        <div class="warnline" style="margin-top:12px">
+          当前所有判定都来自字符串匹配，模型复核驳回率 100%。补判据之前，这里的统计主要反映判据缺失，不是规则本身的质量。
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <h3>报告</h3>
+          <span class="right">
+            <button class="btn primary">生成日报</button>
+            <button class="btn">周报</button><button class="btn">月报</button>
+          </span>
+        </div>
+        <div class="list">
+          <div class="row"><span class="time">10-28</span><span class="lv">日报</span>
+            <span class="name">364 字</span>
+            <span class="txt">2268 条活动 · 60 个目录 · 142 个文件</span>
+            <span class="act">收起</span></div>
+          <div class="row"><span class="time">10-28</span><span class="lv">周报</span>
+            <span class="name">563 字</span>
+            <span class="txt">10-21 → 10-28 · 树版本 v6</span>
+            <span class="act">预览</span></div>
+        </div>
+        <pre class="md"># 日报 2026-10-28
+
+## 监控状态
+- 判定 2268 条：偏离 1818、探索 114、待定 336、对齐 0
+- 本期候选 358 条：已复核 498（确认 0、驳回 498），待复核 358
+
+## 本期活动
+- 本期 2268 条活动（工具 1721、提问 436、汇报 36、手动 9），涉及 60 个目录、142 个文件
+- 20:00–02:00 metacog/src（297 次：edit 186/read 82+2）：index.ts、host.ts 等 9 个</pre>
+      </div>
+    </section>
+
+    <!-- ==================== 树 ==================== -->
+    <section class="panel" id="tree" hidden>
+      <div class="picker">
+        <span class="hint">项目</span>
+        <select onchange="return false">
+          <option>dsh临时工作区 — 给 DSH 加一层元认知监控</option>
+          <option>喜临门横向2 — 睡眠实验室数据采集与预处理</option>
+        </select>
+        <span class="meta">v6 · 审计 9 条 · 哈希链完整</span>
+      </div>
+
+      <div class="subtabs">
+        <button class="subtab on" data-sub="goals">目标树 8</button>
+        <button class="subtab" data-sub="contra">矛盾树 2</button>
+      </div>
+
+      <!-- 目标树 -->
+      <div id="goals">
+        <details class="help" open>
+          <summary>怎么读这棵树</summary>
+          <div>
+            每一行是一个目标。<b>d0–d4</b> 是层级深度，越深越具体。<br>
+            右边的 <code>2/1/1</code> 是 <b>相关活动 / 允许方法 / 成功标准</b> 的条数——
+            前两项是「能不能匹配上活动」的判据，<b>都空就等于永不匹配</b>（标红）。<br>
+            点一行看右侧详情；详情下方有编辑入口，改动走 CAS 与审计链，和命令改的是同一条路。
+          </div>
+        </details>
+        <div class="tree-wrap">
+          <div class="tree">
+            <div class="node on" data-node="L0">
+              <span class="d">d0</span><span class="st">active</span>
+              <span class="t">给 DSH 加一层元认知监控</span>
+              <span class="crit none" title="无匹配判据">0/0/0</span>
+            </div>
+            <div class="node" data-node="L1a" style="padding-left:22px">
+              <span class="d">d1</span><span class="st">active</span>
+              <span class="t">目标与矛盾的结构建模</span><span class="crit">2/1/1</span>
+            </div>
+            <div class="node" data-node="L1b" style="padding-left:22px">
+              <span class="d">d1</span><span class="st">active</span>
+              <span class="t">漂移信号的判定与升级</span><span class="crit">2/1/1</span>
+            </div>
+            <div class="node" data-node="L1c" style="padding-left:22px">
+              <span class="d">d1</span><span class="st">active</span>
+              <span class="t">宿主接入与周期产出</span><span class="crit none">0/0/1</span>
+            </div>
+            <div class="node" data-node="L1d" style="padding-left:22px">
+              <span class="d">d1</span><span class="st">active</span>
+              <span class="t">验证层一：结构建模的可执行落地</span><span class="crit none">0/0/0</span>
+            </div>
+            <div class="node" data-node="L2" style="padding-left:38px">
+              <span class="d">d2</span><span class="st">active</span>
+              <span class="t">验证层二：编辑接口支持任意深度</span><span class="crit none">0/0/0</span>
+            </div>
+            <div class="node" data-node="L3" style="padding-left:54px">
+              <span class="d">d3</span><span class="st">active</span>
+              <span class="t">验证层三：深度不变量由程序校验</span><span class="crit none">0/0/0</span>
+            </div>
+            <div class="node" data-node="L4" style="padding-left:70px">
+              <span class="d">d4</span><span class="st">active</span>
+              <span class="t">验证层四：跨层父子关系被接受</span><span class="crit none">0/0/1</span>
+            </div>
+          </div>
+
+          <div class="detail">
+            <h4 id="d-title">给 DSH 加一层元认知监控</h4>
+            <div class="path" id="d-path">L0_5230b26c · depth 0 · 无父节点</div>
+
+            <div class="kv">
+              <div class="k">状态</div><div class="v"><span class="st">active</span> 优先级 0</div>
+              <div class="k">相关活动</div><div class="v"><span class="chips"><span class="chip none">未填写</span></span></div>
+              <div class="k">允许方法</div><div class="v"><span class="chips"><span class="chip none">未填写</span></span></div>
+              <div class="k">成功标准</div><div class="v"><span class="chips"><span class="chip none">未填写</span></span></div>
+              <div class="k">证据</div><div class="v"><span class="chips"><span class="chip">metacog/package.json</span><span class="chip">metacog/docs/stage-g.md</span></span></div>
+              <div class="k">探索策略</div><div class="v">limited</div>
+            </div>
+
+            <div class="warnline" style="margin-bottom:12px">
+              这个目标没有可匹配判据，任何活动都不会被判成「服务于它」。
+            </div>
+
+            <div class="editbar">
+              <button class="btn primary sm" onclick="toggleEdit()">编辑</button>
+              <button class="btn sm">加子目标</button>
+              <button class="btn ghost sm">查看历史</button>
+            </div>
+
+            <div id="editform" hidden style="margin-top:12px; padding-top:12px; border-top:1px solid var(--line-soft)">
+              <div class="field"><label>标题</label><input type="text" value="给 DSH 加一层元认知监控"></div>
+              <div class="field"><label>描述</label><textarea>让「当前在做的事是否推进了已确认目标」变成可审计的判断，而不是凭感觉。</textarea></div>
+              <div class="field"><label>相关活动（一行一条，用分号分隔）</label><textarea placeholder="结构建模; data model design"></textarea></div>
+              <div class="field"><label>允许方法</label><textarea placeholder="typescript"></textarea></div>
+              <div class="field"><label>成功标准</label><textarea placeholder="节点变更走 CAS 与审计"></textarea></div>
+              <div class="field"><label>状态</label>
+                <select><option>active</option><option>at_risk</option><option>done</option><option>deprecated</option></select>
+              </div>
+              <div class="audit">
+                保存会写一条审计（actor: user_confirmed），版本 v6 → v7。<br>
+                如果树在这期间被别人改过，保存会因版本不匹配被拒绝，不会覆盖别人的修改。
+              </div>
+              <div class="foot" style="margin-top:10px">
+                <button class="btn primary sm">保存</button>
+                <button class="btn sm" onclick="toggleEdit()">取消</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 矛盾树 -->
+      <div id="contra" hidden>
+        <details class="help" open>
+          <summary>核心矛盾与主要矛盾的区别</summary>
+          <div>
+            <b>core（核心）</b>：由根目标隐含、长期存在，再努力也不会消失。比如「模型给解释 vs 程序把状态」。<br>
+            <b>main（主要）</b>：此刻正在卡住你的那一个。解决它，别的才会松动。<br>
+            <b>secondary</b>：次要张力，暂时不影响推进。<br>
+            强度 1–5 不是猜的：每次记录一次观察，趋势由观察流算出来，不由模型口头判断。
+          </div>
+        </details>
+        <div class="tree-wrap">
+          <div class="tree">
+            <div class="node on">
+              <span class="st" style="background:rgba(59,111,212,.14);color:var(--accent)">core</span>
+              <span class="t">模型提供解释 vs 程序把住状态</span>
+              <span class="crit">—</span>
+            </div>
+            <div class="node">
+              <span class="st at_risk">main</span>
+              <span class="t">证据严格性 vs 落地速度</span>
+              <span class="crit">强度 3</span>
+            </div>
+          </div>
+
+          <div class="detail">
+            <h4>模型提供解释 vs 程序把住状态</h4>
+            <div class="path">C_c3017181 · core · 无父节点</div>
+
+            <div class="kv">
+              <div class="k">两极</div>
+              <div class="v">模型提出候选判断与理由<br><span class="hint">↕</span><br>写入权与版本控制归程序</div>
+              <div class="k">关联目标</div><div class="v"><span class="chips"><span class="chip">目标与矛盾的结构建模</span></span></div>
+              <div class="k">强度</div><div class="v">未记录 <span class="hint">— 需要至少 3 次观察才有趋势</span></div>
+              <div class="k">趋势</div><div class="v">unknown <span class="hint">（0 次观察）</span></div>
+            </div>
+
+            <div class="field" style="margin-top:4px">
+              <label>记录一次观察（强度 1–5，0 = 证据不足）</label>
+              <div class="intensity">
+                <button>0</button><button>1</button><button>2</button>
+                <button class="on">3</button><button>4</button><button>5</button>
+              </div>
+              <div class="hint" style="margin-top:4px">观察不写审计、不推进版本；它只进观察流，趋势由流算。</div>
+            </div>
+
+            <div class="editbar">
+              <button class="btn primary sm">编辑字段</button>
+              <button class="btn sm">改类型</button>
+              <button class="btn ghost sm">标记已解决</button>
+            </div>
+            <div class="audit">
+              改类型或改 core 矛盾需要二次确认，会记 <code>reclassify_contradiction</code>。
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 设置 ==================== -->
+    <section class="panel" id="config" hidden>
+
+      <div class="card">
+        <div class="card-head"><h3>监控开关</h3></div>
+        <details class="help">
+          <summary>这三个开关分别管什么</summary>
+          <div>
+            <b>启用监控</b>：总开关。关掉后工具还在，但不再巡检、不再判定。<br>
+            <b>静默模式</b>：照常记录和判定，只是不弹提示、不弹卡。适合长时间挂机，结论去报告里看。<br>
+            <b>Level 3 硬拦截</b>：偏离时真的拒绝危险操作。现在是影子模式——只计数不拦。
+          </div>
+        </details>
+        <div class="form">
+          <div class="k">启用监控</div>
+          <div><span class="switch"><i class="track on"><i class="knob"></i></i>开</span></div>
+          <div class="k">静默模式<small>只记录、不打扰</small></div>
+          <div><span class="switch"><i class="track"><i class="knob"></i></i>关</span></div>
+          <div class="k">Level 3 硬拦截<small>破坏性操作在偏离时被拒绝</small></div>
+          <div><span class="switch"><i class="track"><i class="knob"></i></i>关</span>
+            <span class="hint" style="margin-left:10px">影子模式：只计数</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><h3>判定参数</h3></div>
+        <details class="help">
+          <summary>改这些会影响什么</summary>
+          <div>
+            <b>巡检间隔</b>：多久主动看一次。调小更灵敏，但模型调用更多。<br>
+            <b>判定窗口</b>：一次判定回看多长的活动。太短会漏掉跨时段的工作。<br>
+            <b>重复升级</b>：同类信号出现几次才从「记一笔」升到「弹卡」。调大更安静。<br>
+            <b>最低置信度</b>：低于它的判定记为「待定」，不升级。<br>
+            <b>强度门槛</b>：核心矛盾要多强，L3 拦截才可能触发。<br>
+            <b>陈旧判定</b>：目标多少天没有证据算停滞。<b>不能填 0</b>，会拒绝加载整个插件。
+          </div>
+        </details>
+        <div class="form">
+          <div class="k">巡检间隔<small>多久主动看一次</small></div>
+          <div><input type="number" value="60"> <span class="hint">分钟</span></div>
+          <div class="k">判定窗口<small>一次判定看多长活动</small></div>
+          <div><input type="number" value="120"> <span class="hint">分钟</span></div>
+          <div class="k">重复升级<small>同类信号几次才升级</small></div>
+          <div><input type="number" value="3"> <span class="hint">次</span></div>
+          <div class="k">最低置信度</div>
+          <div><input type="number" value="0.6" step="0.05"></div>
+          <div class="k">强度门槛</div>
+          <div><input type="number" value="4" min="1" max="5"></div>
+          <div class="k">陈旧判定<small>多少天无证据算停滞</small></div>
+          <div><input type="number" value="7"> <span class="hint">天</span></div>
+        </div>
+        <div class="foot">
+          <button class="btn primary">保存</button>
+          <button class="btn">恢复默认</button>
+          <span class="hint">保存后立即生效</span>
+        </div>
+      </div>
+
+      <!-- 采集范围：重做 -->
+      <div class="card">
+        <div class="card-head"><h3>采集范围</h3></div>
+        <details class="help">
+          <summary>这一块决定报告能写出多少真实工作</summary>
+          <div>
+            监控只能看见它采集到的东西。如果只在认知监控会话里采集，你在别的会话里干的活它完全不知道，
+            报告就会写「本期活动很少」——不是你没干活，是它没看见。<br>
+            所以这里要先选「哪些工作区纳入监控」，再选「每个工作区里采哪些会话」。
+          </div>
+        </details>
+
+        <div class="form" style="grid-template-columns:150px 1fr; align-items:start">
+          <div class="k" style="padding-top:4px">纳入的工作区</div>
+          <div>
+            <label style="display:flex;gap:7px;align-items:center;font-size:12.5px;margin-bottom:6px">
+              <input type="radio" name="scope" checked> 所有已建树的工作区
+              <span class="hint">（自动跟随，新建树就纳入）</span>
+            </label>
+            <label style="display:flex;gap:7px;align-items:center;font-size:12.5px;margin-bottom:8px">
+              <input type="radio" name="scope"> 由我指定
+            </label>
+
+            <div style="border:1px solid var(--line); border-radius:8px; padding:4px 10px; background:var(--bg-soft)">
+              <div class="row" style="border-bottom:1px solid var(--line-soft)">
+                <input type="checkbox" checked>
+                <span class="name" style="flex:1">dsh临时工作区</span>
+                <span class="hint">v6 已确认 · 8 目标</span>
+                <span class="lv">采集中</span>
+              </div>
+              <div class="row" style="border-bottom:1px solid var(--line-soft)">
+                <input type="checkbox" checked>
+                <span class="name" style="flex:1">喜临门横向2</span>
+                <span class="hint">v1 已确认 · 6 目标</span>
+                <span class="lv">采集中</span>
+              </div>
+              <div class="row" style="border-bottom:1px solid var(--line-soft)">
+                <input type="checkbox" checked>
+                <span class="name" style="flex:1">朋友系统设计</span>
+                <span class="hint">v1 已确认 · 6 目标</span>
+                <span class="lv">采集中</span>
+              </div>
+              <div class="row">
+                <input type="checkbox" disabled>
+                <span class="name" style="flex:1">杂活</span>
+                <span class="hint">v0 未确认，没有树</span>
+                <span class="lv" style="color:var(--fg-3)">不可选</span>
+              </div>
+            </div>
+            <div class="hint" style="margin-top:5px">没建树的工作区无法监控——没有判据就没法判断对错。</div>
+          </div>
+
+          <div class="k" style="padding-top:4px">每个工作区里采哪些会话</div>
+          <div>
+            <select style="width:100%">
+              <option>仅认知监控会话（最省，但看不见真实工作）</option>
+              <option>本工作区全部会话（推荐，报告才写得实）</option>
+              <option>除指定会话外的全部</option>
+            </select>
+            <div class="hint" style="margin-top:4px">
+              现在只采监控会话，所以 2,268 条活动里很大一部分其实来自监控会话自己。
+            </div>
+          </div>
+
+          <div class="k" style="padding-top:4px">过滤宿主注入块</div>
+          <div><span class="switch"><i class="track on"><i class="knob"></i></i>开</span>
+            <span class="hint" style="margin-left:10px">runtime context、checkpoint 回执等，已拦 120 条</span></div>
+        </div>
+
+        <div class="foot">
+          <button class="btn primary">保存</button>
+          <span class="hint">改采集范围不会补历史，只影响之后</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><h3>数据与维护</h3></div>
+        <div class="form" style="grid-template-columns:150px 1fr">
+          <div class="k">活动流</div><div>2.0 MB · 2,268 条</div>
+          <div class="k">判定流</div><div>1.8 MB · 856 条</div>
+          <div class="k">信号归档</div><div>1.8 MB · 1,459 条</div>
+          <div class="k">快照</div><div>76 KB · 13 份</div>
+          <div class="k">报告</div><div>227 KB · 24 条 <span class="hint">（同周期有重复）</span></div>
+        </div>
+        <div class="foot">
+          <button class="btn">归档信号流</button>
+          <button class="btn">清理重复报告</button>
+          <button class="btn ghost">导出全部报告</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><h3>术语表</h3></div>
+        <table class="gloss">
+          <tr><th style="width:110px">词</th><th>含义</th></tr>
+          <tr><td>判据</td><td>目标上写的「哪些活动算服务于我」。<code>relevantActivities</code> 与 <code>allowedMethods</code> 是能匹配的判据，<code>successCriteria</code> 只是验收条件，不参与匹配。</td></tr>
+          <tr><td>偏离</td><td>活动对不上任何目标，也没有被预先授权。</td></tr>
+          <tr><td>待定</td><td>证据等级不够，程序不下结论。</td></tr>
+          <tr><td>合理探索</td><td>命中了目标的允许方法或相关活动。</td></tr>
+          <tr><td>对齐</td><td>确认服务于某个目标。当前恒为 0，因为多数目标没写判据。</td></tr>
+          <tr><td>信号</td><td>一次升级记录。等级 L0–L3 决定打扰你的程度。</td></tr>
+          <tr><td>干预卡</td><td>L2 及以上弹出的待决事项，要你选继续 / 纠正 / 改目标 / 忽略。</td></tr>
+          <tr><td>core 矛盾</td><td>由根目标隐含、长期存在、再努力也不会消失的张力。</td></tr>
+          <tr><td>main 矛盾</td><td>此刻正在卡住进度的那个张力。</td></tr>
+          <tr><td>强度</td><td>1–5。由多次观察算趋势，不是模型随口给的。</td></tr>
+          <tr><td>校准</td><td>把分数变成概率。未校准前系统只给分数。</td></tr>
+        </table>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+  // 主 tab
+  for (const tab of document.querySelectorAll('.tab')) {
+    tab.addEventListener('click', () => {
+      for (const other of document.querySelectorAll('.tab')) other.classList.toggle('on', other === tab)
+      for (const panel of document.querySelectorAll('.panel')) panel.hidden = panel.id !== tab.dataset.tab
+    })
+  }
+  // 树子 tab
+  for (const sub of document.querySelectorAll('.subtab')) {
+    sub.addEventListener('click', () => {
+      for (const other of document.querySelectorAll('.subtab')) other.classList.toggle('on', other === sub)
+      document.getElementById('goals').hidden = sub.dataset.sub !== 'goals'
+      document.getElementById('contra').hidden = sub.dataset.sub !== 'contra'
+    })
+  }
+  // 树节点选中
+  for (const node of document.querySelectorAll('#goals .node')) {
+    node.addEventListener('click', () => {
+      for (const other of document.querySelectorAll('#goals .node')) other.classList.remove('on')
+      node.classList.add('on')
+      document.getElementById('d-title').textContent = node.querySelector('.t').textContent
+    })
+  }
+  // 编辑表单开关
+  function toggleEdit() {
+    const form = document.getElementById('editform')
+    form.hidden = !form.hidden
+  }
+  // 强度按钮
+  for (const btn of document.querySelectorAll('.intensity button')) {
+    btn.addEventListener('click', () => {
+      for (const other of document.querySelectorAll('.intensity button')) other.classList.remove('on')
+      btn.classList.add('on')
+    })
+  }
+</script>
+</body>
+</html>
