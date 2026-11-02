@@ -95,7 +95,18 @@ npm test             # 单元测试
 npm run test:all     # 全量测试（含验收、集成、行为追踪）
 ```
 
-源码在 `src/`（纯 ESM TypeScript），编译产物在 `lib/`。`client.js` 是手写 JS，不经构建。设计文档在 `docs/`，入口是 `docs/monitoring-design-v4.md`。
+源码在 `src/`（60 个文件，纯 ESM TypeScript），编译产物在 `lib/`。`client.js` 是手写 JS，不经构建。
+
+设计文档在 `docs/`，入口是 `docs/monitoring-design-v4.md`（架构设计 v4）：
+
+| 文件 | 内容 |
+|---|---|
+| `monitoring-design-v4.md` | 架构设计 v4，当前实现依据 |
+| `monitoring-design.md` | 早期可落地方案 |
+| `design-goal-contradiction.md` | 目标树与矛盾树的识别规则 |
+| `session-protocol.md` | 会话协议层 |
+| `cordis-inject-semantics.md` | Cordis 依赖声明语义（实测） |
+| `known-issues.md` | 已知问题 |
 
 ## 已知限制
 
