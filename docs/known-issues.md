@@ -1,13 +1,9 @@
-# 已知问题
+# 宸茬煡闂
 
-已确认、但**有意暂不修复**的缺陷。每条都要能定位到代码、说清现状、说明为什么先不动、以及修的时候哪些断言会翻。
-
-## K1 `core_bypass` 把「没有候选目标」读成「回避」
-
-**位置**：`src/analysis/drift.ts`，`detectCoreBypass()` 内计算 `avoiding` 的 filter（约 L218–L231）。
-
-**现状**：
-
+宸茬‘璁ゃ€佷絾**鏈夋剰鏆備笉淇**鐨勭己闄枫€傛瘡鏉￠兘瑕佽兘瀹氫綅鍒颁唬鐮併€佽娓呯幇鐘躲€佽鏄庝负浠€涔堝厛涓嶅姩銆佷互鍙婁慨鐨勬椂鍊欏摢浜涙柇瑷€浼氱炕銆?
+## K1 `core_bypass` 鎶娿€屾病鏈夊€欓€夌洰鏍囥€嶈鎴愩€屽洖閬裤€?
+**浣嶇疆**锛歚src/analysis/drift.ts`锛宍detectCoreBypass()` 鍐呰绠?`avoiding` 鐨?filter锛堢害 L218鈥揕231锛夈€?
+**鐜扮姸**锛?
 ```ts
 const avoiding = activities.filter((activity) => {
   if (!inWindow(activity.timestamp, now, window)) return false
@@ -17,18 +13,13 @@ const avoiding = activities.filter((activity) => {
 })
 ```
 
-最后一行是「**没有**正向指向就算回避」。而紧邻的注释写的是相反的意思：
+鏈€鍚庝竴琛屾槸銆?*娌℃湁**姝ｅ悜鎸囧悜灏辩畻鍥為伩銆嶃€傝€岀揣閭荤殑娉ㄩ噴鍐欑殑鏄浉鍙嶇殑鎰忔€濓細
 
 > `uncertain` records are kept unless they positively point at a goal the contradiction binds, because an unjudged activity cannot be said to avoid anything.
 
-按注释，`uncertain` 只在**指向**被绑定目标时才应被排除；按代码，凡**不指向**的都被算作回避。
-
-**后果**：一条 `decision: 'uncertain'`、`candidateGoalIds: []` 的活动会被计入 `avoiding`；攒够 `thresholds.repeatThreshold`（默认 3）即产出 `core_bypass` 信号，可升至 Level 2 干预卡。「没判出来」被当成「在回避」。
-
-**为什么暂不修**：修正它等于改变升级语义（哪些活动构成回避），需单独评审。改枚举为第五值 `unbound` 时发现此问题，确认它早于 `unbound` 存在，不是那次改动引入的。
-
-**已做的隔离**：`src/analysis/service.ts` 在调用 `detectCoreBypass` 前过滤掉 `decision === 'unbound'` 的活动——「无法归属」不是「回避」的证据。该隔离**只覆盖 `unbound`**，不覆盖 `uncertain`。
-
-**测试固定**：`test/path-alignment.test.mjs` 的 `[known defect]` 段落断言当前行为。修好 K1 时该断言应当翻转——那是刻意的行为变更，不是回归。
-
-**修法参考**：让末行只把正向指向（或 `scope_drift`）当作回避证据，例如在兜底前显式处理 `uncertain`；同步更新上述断言，并复核 `docs/monitoring-design-v4.md` 中 core_bypass 的判据描述。
+鎸夋敞閲婏紝`uncertain` 鍙湪**鎸囧悜**琚粦瀹氱洰鏍囨椂鎵嶅簲琚帓闄わ紱鎸変唬鐮侊紝鍑?*涓嶆寚鍚?*鐨勯兘琚畻浣滃洖閬裤€?
+**鍚庢灉**锛氫竴鏉?`decision: 'uncertain'`銆乣candidateGoalIds: []` 鐨勬椿鍔ㄤ細琚鍏?`avoiding`锛涙敀澶?`thresholds.repeatThreshold`锛堥粯璁?3锛夊嵆浜у嚭 `core_bypass` 淇″彿锛屽彲鍗囪嚦 Level 2 骞查鍗°€傘€屾病鍒ゅ嚭鏉ャ€嶈褰撴垚銆屽湪鍥為伩銆嶃€?
+**涓轰粈涔堟殏涓嶄慨**锛氫慨姝ｅ畠绛変簬鏀瑰彉鍗囩骇璇箟锛堝摢浜涙椿鍔ㄦ瀯鎴愬洖閬匡級锛岄渶鍗曠嫭璇勫銆傛敼鏋氫妇涓虹浜斿€?`unbound` 鏃跺彂鐜版闂锛岀‘璁ゅ畠鏃╀簬 `unbound` 瀛樺湪锛屼笉鏄偅娆℃敼鍔ㄥ紩鍏ョ殑銆?
+**宸插仛鐨勯殧绂?*锛歚src/analysis/service.ts` 鍦ㄨ皟鐢?`detectCoreBypass` 鍓嶈繃婊ゆ帀 `decision === 'unbound'` 鐨勬椿鍔ㄢ€斺€斻€屾棤娉曞綊灞炪€嶄笉鏄€屽洖閬裤€嶇殑璇佹嵁銆傝闅旂**鍙鐩?`unbound`**锛屼笉瑕嗙洊 `uncertain`銆?
+**娴嬭瘯鍥哄畾**锛歚test/path-alignment.test.mjs` 鐨?`[known defect]` 娈佃惤鏂█褰撳墠琛屼负銆備慨濂?K1 鏃惰鏂█搴斿綋缈昏浆鈥斺€旈偅鏄埢鎰忕殑琛屼负鍙樻洿锛屼笉鏄洖褰掋€?
+**淇硶鍙傝€?*锛氳鏈鍙妸姝ｅ悜鎸囧悜锛堟垨 `scope_drift`锛夊綋浣滃洖閬胯瘉鎹紝渚嬪鍦ㄥ厹搴曞墠鏄惧紡澶勭悊 `uncertain`锛涘悓姝ユ洿鏂颁笂杩版柇瑷€锛屽苟澶嶆牳 `docs/architecture.md` 涓?core_bypass 鐨勫垽鎹弿杩般€?

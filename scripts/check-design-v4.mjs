@@ -8,7 +8,7 @@
 import { readFile } from 'node:fs/promises'
 import { join } from 'node:path'
 
-const path = join(process.cwd(), 'docs', 'monitoring-design-v4.md')
+const path = join(process.cwd(), 'docs', 'architecture.md')
 const text = await readFile(path, 'utf8')
 const lines = text.split(/\r?\n/)
 

@@ -17,7 +17,7 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 
 const here = dirname(fileURLToPath(import.meta.url))
-const docText = readFileSync(join(here, '..', 'docs', 'monitoring-design-v4.md'), 'utf8')
+const docText = readFileSync(join(here, '..', 'docs', 'architecture.md'), 'utf8')
 const mod = await import(pathToFileURL(join(here, '..', 'lib', 'data', 'signals.js')).href)
 const { DIMENSION_WEIGHTS, DIMENSION_SIGNALS, SignalIdSchema } = mod
 /** Every signal id the code defines, in declaration order. */

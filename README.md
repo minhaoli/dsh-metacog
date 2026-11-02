@@ -1,5 +1,7 @@
 # dsh-metacog
 
+**中文** | [English](README.en.md)
+
 给 [DeepSeek Harness](https://github.com/deepseek-ai)（dsh）加一层元认知监控：把「这个会话到底在为什么目标干活」显式建模成一棵目标树，把「哪些结构性张力在拖慢它」建模成一棵矛盾树，然后用工具调用的真实轨迹去判定当前活动是否还在服务目标，跑偏就出卡片。
 
 插件以 Cordis 插件形式挂进 dsh profile，服务端跑分析，前端提供树编辑与设置卡。
@@ -97,16 +99,15 @@ npm run test:all     # 全量测试（含验收、集成、行为追踪）
 
 源码在 `src/`（60 个文件，纯 ESM TypeScript），编译产物在 `lib/`。`client.js` 是手写 JS，不经构建。
 
-设计文档在 `docs/`，入口是 `docs/monitoring-design-v4.md`（架构设计 v4）：
+设计文档在 `docs/`，入口是 `docs/architecture.md`：
 
 | 文件 | 内容 |
 |---|---|
-| `monitoring-design-v4.md` | 架构设计 v4，当前实现依据 |
-| `monitoring-design.md` | 早期可落地方案 |
+| `architecture.md` | 架构设计，当前实现依据 |
 | `design-goal-contradiction.md` | 目标树与矛盾树的识别规则 |
 | `session-protocol.md` | 会话协议层 |
-| `cordis-inject-semantics.md` | Cordis 依赖声明语义（实测） |
-| `known-issues.md` | 已知问题 |
+| `plugin-contract.md` | Cordis 依赖声明语义 |
+| `known-issues.md` | 已知缺陷，刻意暂不修复 |
 
 ## 已知限制
 
