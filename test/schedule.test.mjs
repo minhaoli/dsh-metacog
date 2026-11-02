@@ -8,6 +8,7 @@
  *
  * Run: node test/schedule.test.mjs
  */
+import './_isolation.mjs'
 import { mkdtemp, mkdir, readdir, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
@@ -231,7 +232,10 @@ console.log('\nF1  a timer is installed with the configured interval')
 {
   const root = await makeProject()
   fixtures.push(root)
-  const host = createHost(root, { schedule: { enabled: true, checkIntervalMinutes: 25 } })
+  const host = createHost(root, {
+    schedule: { enabled: true, checkIntervalMinutes: 25 },
+    realtime: { enabled: false },
+  })
   checkEqual('exactly one timer exists', host.timers.length, 1)
   checkEqual('it uses the configured delay', host.timers[0]?.delay, 25 * 60_000)
   check('it is not cleared yet', host.timers[0]?.cleared === false)
@@ -447,8 +451,8 @@ console.log('\nF13  two mounts of different projects keep separate timers')
   fixtures.push(rootA)
   const rootB = await makeProject()
   fixtures.push(rootB)
-  const hostA = createHost(rootA, {})
-  const hostB = createHost(rootB, {})
+  const hostA = createHost(rootA, { realtime: { enabled: false } })
+  const hostB = createHost(rootB, { realtime: { enabled: false } })
   await confirmTree(hostA.tools)
   await confirmTree(hostB.tools)
   await tick(hostA.timers)
@@ -462,6 +466,42 @@ console.log('\nF13  two mounts of different projects keep separate timers')
   checkEqual('project A stays untouched by B', (await storeA.readActivities(idA)).length, 0)
   checkEqual('project B stays untouched by A', (await storeB.readActivities(idB)).length, 0)
   checkEqual('each mount owns one timer', [hostA.timers.length, hostB.timers.length], [1, 1])
+}
+
+// --------------------------------------------------------------------- F14
+console.log('\nF14  realtime monitoring adds its own timer only when enabled')
+{
+  const rootOff = await makeProject()
+  fixtures.push(rootOff)
+  const originalOverrides = process.env.DSH_METACOG_OVERRIDES
+  // The two cases state their own override file so the test does not depend on
+  // whatever the reverse-verification run put in the environment.
+  process.env.DSH_METACOG_OVERRIDES = join(rootOff, 'no-overrides.yml')
+  const off = createHost(rootOff, {
+    schedule: { enabled: true, checkIntervalMinutes: 25 },
+    realtime: { enabled: false, intervalMinutes: 5 },
+  })
+  checkEqual('disabled realtime keeps one timer', off.timers.length, 1)
+  checkEqual('and it is the schedule timer', off.timers[0]?.delay, 25 * 60_000)
+
+  const rootOn = await makeProject()
+  fixtures.push(rootOn)
+  const trueOverride = join(rootOn, 'overrides-true.yml')
+  await writeFile(trueOverride, 'realtime:\n  enabled: true\n', 'utf8')
+  process.env.DSH_METACOG_OVERRIDES = trueOverride
+  try {
+    const on = createHost(rootOn, {
+      schedule: { enabled: true, checkIntervalMinutes: 25 },
+      realtime: { enabled: true, intervalMinutes: 5 },
+    })
+    checkEqual('enabled realtime adds a second timer', on.timers.length, 2)
+    const delays = on.timers.map((timer) => timer.delay).sort((left, right) => right - left)
+    checkEqual('the schedule timer keeps 25 minutes', delays[0], 25 * 60_000)
+    checkEqual('the realtime timer uses 5 minutes', delays[1], 5 * 60_000)
+  } finally {
+    if (originalOverrides === undefined) delete process.env.DSH_METACOG_OVERRIDES
+    else process.env.DSH_METACOG_OVERRIDES = originalOverrides
+  }
 }
 
 for (const root of fixtures) {

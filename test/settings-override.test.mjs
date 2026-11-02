@@ -39,6 +39,11 @@ function check(label, condition, detail) {
 const fakeHome = await mkdtemp(join(tmpdir(), 'metacog-home-'))
 const realHome = process.env.HOME
 const realUserProfile = process.env.USERPROFILE
+const realOverrides = process.env.DSH_METACOG_OVERRIDES
+// The suite-level isolation preload points overrides at a temp path; this test
+// specifically exercises the HOME-derived default, so it clears that redirect
+// and puts it back in `finally`.
+delete process.env.DSH_METACOG_OVERRIDES
 process.env.HOME = fakeHome
 // Windows: os.homedir() reads USERPROFILE.
 process.env.USERPROFILE = fakeHome
@@ -162,6 +167,8 @@ try {
   else process.env.HOME = realHome
   if (realUserProfile === undefined) delete process.env.USERPROFILE
   else process.env.USERPROFILE = realUserProfile
+  if (realOverrides === undefined) delete process.env.DSH_METACOG_OVERRIDES
+  else process.env.DSH_METACOG_OVERRIDES = realOverrides
   await rm(fakeHome, { recursive: true, force: true })
 }
 

@@ -28,8 +28,18 @@ import { parse as parseYaml, stringify as stringifyYaml } from 'yaml'
 
 import { ConfigSchema, type MetacogConfig } from './config.js'
 
-/** Where the card's settings live. One file per user, not per project. */
+/**
+ * Where the card's settings live. One file per user, not per project.
+ *
+ * `DSH_METACOG_OVERRIDES` redirects this path. It exists for test isolation:
+ * without it, a developer who once flipped a switch in the settings card would
+ * see unrelated test failures, because the tests would read the real user
+ * override file. The variable is read on every call, never cached — tests set
+ * it at runtime, after this module has already been evaluated.
+ */
 export function overridesPath(): string {
+  const redirected = process.env.DSH_METACOG_OVERRIDES
+  if (typeof redirected === 'string' && redirected.trim().length > 0) return redirected
   return join(homedir(), '.dsh', 'metacog-overrides.yml')
 }
 

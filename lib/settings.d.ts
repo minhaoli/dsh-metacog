@@ -21,7 +21,15 @@
  * @module dsh-metacog/settings
  */
 import { type MetacogConfig } from './config.js';
-/** Where the card's settings live. One file per user, not per project. */
+/**
+ * Where the card's settings live. One file per user, not per project.
+ *
+ * `DSH_METACOG_OVERRIDES` redirects this path. It exists for test isolation:
+ * without it, a developer who once flipped a switch in the settings card would
+ * see unrelated test failures, because the tests would read the real user
+ * override file. The variable is read on every call, never cached — tests set
+ * it at runtime, after this module has already been evaluated.
+ */
 export declare function overridesPath(): string;
 /**
  * The subset of config the card is allowed to change.
