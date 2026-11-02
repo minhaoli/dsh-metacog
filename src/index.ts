@@ -343,7 +343,7 @@ export function apply(ctx: HostContext, rawConfig?: unknown): void {
   if (tools === undefined) {
     throw new Error('[dsh-metacog] host injected "tools" but exposes no tool registry')
   }
-  // ---------------------------------------------------------------- Stage E/F
+  // ---------------------------------------------------------- collection + schedule
   // Projects this mount monitors. Filled by two paths — the event feed and any
   // tool that resolves a project — and read by the periodic sweep. It is a
   // runtime fact rebuilt on every mount, never persisted.
@@ -444,7 +444,7 @@ export function apply(ctx: HostContext, rawConfig?: unknown): void {
     registeredTools.push(definition.name)
   }
 
-  // ---------------------------------------------------------------- Stage E
+  // ------------------------------------------------------------------- collection
   // Live collection. The feed is observed, never intercepted: nothing here can
   // change what the host commits, and every failure is contained to a warning.
   const collector = installCollector({
@@ -602,7 +602,7 @@ export function apply(ctx: HostContext, rawConfig?: unknown): void {
     coverageNotes.clear()
   })
 
-  // ---------------------------------------------------------------- Stage G
+  // ---------------------------------------------------------------------- reports
   // The dynamic prompt block. `AssembleContext` exposes only `scope`/`signal`
   // (verified against the live contract), so the text cannot resolve a project
   // by itself. It renders from this mount's cache instead, and the cache is
@@ -705,7 +705,7 @@ export function apply(ctx: HostContext, rawConfig?: unknown): void {
     )
   }
 
-  // ---------------------------------------------------------------- Stage F
+  // -------------------------------------------------------------------- scheduling
   // The periodic sweep. Static checks only: a tick has no conversation, so it
   // is Grade C by construction and may record and hint but never open a card.
   // When each project was last sent to the model for a second opinion. In memory

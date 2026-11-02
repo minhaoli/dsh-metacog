@@ -120,7 +120,7 @@ export declare function generateWorkspaceReport(input: {
  */
 export declare function generateReport(input: ReportInput): Promise<GeneratedReport>;
 /**
- * Render the compact prompt block (spec 6 Stage G item 2).
+ * Render the compact prompt block (spec 6 item 2).
  *
  * Deliberately small: the decision rule for core-versus-main, the active top
  * level of the tree, and whatever is currently pending. The full tree never

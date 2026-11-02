@@ -1,12 +1,12 @@
 /**
- * Stage B verification: data model, persistence isolation, CAS concurrency
+ * Collection verification: data model, persistence isolation, CAS concurrency
  * control and the hash-chained audit log.
  *
  * Exercises the compiled store against real temporary directories — no mocked
  * filesystem — so atomic writes, restart recovery and corruption detection are
  * verified against actual disk behaviour.
  *
- * Run: node test/stage-b.test.mjs
+ * Run: node test/collect.test.mjs
  */
 import { mkdtemp, rm, writeFile, readFile, mkdir } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
@@ -98,7 +98,7 @@ async function makeProject() {
   return dir
 }
 
-console.log('=== Stage B: 数据模型、持久化隔离、CAS 并发控制与哈希链审计 ===')
+console.log('=== Collection: 数据模型、持久化隔离、CAS 并发控制与哈希链审计 ===')
 
 const { MetacogStore, VersionConflictError, StoreInvariantError, computeAuditHash } = await import(
   storeUrl
@@ -566,5 +566,5 @@ for (const dir of temporaries) {
   await rm(dir, { recursive: true, force: true })
 }
 
-console.log(`\n=== Stage B 结果: ${passed} passed, ${failed} failed ===`)
+console.log(`\n=== Collection 结果: ${passed} passed, ${failed} failed ===`)
 process.exitCode = failed === 0 ? 0 : 1

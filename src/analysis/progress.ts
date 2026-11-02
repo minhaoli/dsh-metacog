@@ -62,7 +62,7 @@ const HALF = 0.5
 const THREE_QUARTER = 0.75
 
 /**
- * Pick the stage for an elapsed fraction.
+ * Pick the progress band for an elapsed fraction.
  *
  * The boundaries are inclusive at the lower end: exactly a quarter elapsed is
  * the quarter checkpoint, not still "early". A reminder that fires one tick

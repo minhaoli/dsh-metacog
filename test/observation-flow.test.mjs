@@ -1,12 +1,12 @@
 /**
- * Stage D verification: observation stream, dedupe, alignment judgement, drift
+ * Observation flow verification: observation stream, dedupe, alignment judgement, drift
  * detectors and the Level 0-3 escalation state machine.
  *
  * The cases drive the registered tools through their real `execute` path against
  * a real temporary project, so what is verified is the behaviour a model would
  * observe 鈥?including refusals and the exact level a signal receives.
  *
- * Run: node test/stage-d.test.mjs
+ * Run: node test/observation-flow.test.mjs
  */
 import { mkdtemp, mkdir, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
@@ -927,6 +927,6 @@ try {
   }
 }
 
-console.log(`\n=== Stage D 结果: ${passed} passed, ${failed} failed ===`)
+console.log(`\n=== Observation flow 结果: ${passed} passed, ${failed} failed ===`)
 if (failed > 0) process.exitCode = 1
 

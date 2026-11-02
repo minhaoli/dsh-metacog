@@ -1,5 +1,5 @@
 /**
- * Stage E: live observation from the host's session event feed.
+ * Live observation from the host's session event feed.
  *
  * The plugin subscribes to exactly one host event (`session/event`) and turns a
  * narrow slice of it into `ActivityRecord`s. Everything here obeys three rules

@@ -1,12 +1,12 @@
 /**
- * Stage A verification: the skeleton must load, validate its configuration,
+ * Skeleton verification: the skeleton must load, validate its configuration,
  * expose every documented tunable, and release everything it owns on teardown.
  *
  * Drive the compiled `lib/` through a mock host context that records every
  * registration, mirroring the event payload shapes shipped plugins receive.
  * No dsh process and no restart are needed.
  *
- * Run: node test/stage-a.test.mjs
+ * Run: node test/skeleton.test.mjs
  */
 import { pathToFileURL } from 'node:url'
 import { dirname, join } from 'node:path'
@@ -136,7 +136,7 @@ function createMockHost(options = {}) {
   }
 }
 
-console.log('=== Stage A: 环境核验与最小可加载插件骨架 ===')
+console.log('=== Skeleton: 环境核验与最小可加载插件骨架 ===')
 
 const mod = await import(libUrl)
 const { apply, name, inject } = mod
@@ -305,5 +305,5 @@ console.log('\n-- A7: 单个 disposer 抛错不影响其余释放 --')
   check('抛错被记录为警告', warned.length === 1, String(warned.length))
 }
 
-console.log(`\n=== Stage A 结果: ${passed} passed, ${failed} failed ===`)
+console.log(`\n=== Skeleton 结果: ${passed} passed, ${failed} failed ===`)
 process.exitCode = failed === 0 ? 0 : 1

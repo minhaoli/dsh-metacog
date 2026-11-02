@@ -1,5 +1,5 @@
 /**
- * Stage F: the periodic drift sweep.
+ * The periodic drift sweep.
  *
  * Verified host contract (2026-10-27, `cordis_inspect_query` host `Service`
  * provider): the recurring primitive is `ctx.timer.interval(callback, delay)`,

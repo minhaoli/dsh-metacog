@@ -1,5 +1,5 @@
 /**
- * Stage C verification: candidate-tree initialization, explicit confirmation,
+ * Tree lifecycle verification: candidate-tree initialization, explicit confirmation,
  * and controlled structural editing.
  *
  * Every case drives the *registered tools* through their real `execute` path
@@ -7,7 +7,7 @@
  * behaviour a model would actually observe — including the refusal codes —
  * rather than the internals of any single module.
  *
- * Run: node test/stage-c.test.mjs
+ * Run: node test/tree-lifecycle.test.mjs
  */
 import { mkdtemp, mkdir, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
@@ -789,5 +789,5 @@ try {
   }
 }
 
-console.log(`\n=== Stage C 结果: ${passed} passed, ${failed} failed ===`)
+console.log(`\n=== Tree lifecycle 结果: ${passed} passed, ${failed} failed ===`)
 if (failed > 0) process.exitCode = 1

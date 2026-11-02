@@ -1,5 +1,5 @@
 /**
- * Stage G+: the Level 3 hard gate (spec 4.4 item 4).
+ * The Level 3 hard gate (spec 4.4 item 4).
  *
  * Verified host contract (2026-10-27, `cordis_inspect_query` `Event.listEvents`
  * with `event: "tools/pre-execute"`): a **waterfall** whose listener may return

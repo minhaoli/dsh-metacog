@@ -1,5 +1,5 @@
 /**
- * Stage G verification: periodic reports and the dynamic prompt block.
+ * Reporting verification: periodic reports and the dynamic prompt block.
  *
  * The report cases drive `generate_report` through the real tool path. They
  * assert what a reader actually needs: that the body leads with the monitor and
@@ -9,7 +9,7 @@
  * monthly defects stay fixed, and that a Markdown copy lands at
  * `reports/markdown/<type>-<YYYY-MM-DD>.md`.
  *
- * Run: node test/stage-g.test.mjs
+ * Run: node test/reporting.test.mjs
  */
 import { mkdtemp, mkdir, readdir, readFile, rm, stat, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
@@ -158,7 +158,7 @@ async function makeProject() {
   )
   await mkdir(join(root, 'docs'), { recursive: true })
   await writeFile(join(root, 'docs', 'design.md'), '# Design\n\nObservations are append-only.\n')
-  await writeFile(join(root, 'package.json'), JSON.stringify({ name: 'stage-g', version: '1.0.0' }, null, 2))
+  await writeFile(join(root, 'package.json'), JSON.stringify({ name: 'fixture-project', version: '1.0.0' }, null, 2))
   return root
 }
 
@@ -834,5 +834,5 @@ for (const root of fixtures) {
   }
 }
 
-console.log(`\n=== Stage G 结果: ${passed} passed, ${failed} failed ===`)
+console.log(`\n=== Reporting 结果: ${passed} passed, ${failed} failed ===`)
 if (failed > 0) process.exitCode = 1

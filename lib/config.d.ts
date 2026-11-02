@@ -32,7 +32,7 @@ export declare const ThresholdsSchema: z.ZodObject<{
     reviewBatchSize: z.ZodDefault<z.ZodNumber>;
     judgmentLogThreshold: z.ZodDefault<z.ZodNumber>;
 }, z.core.$strip>;
-/** Periodic scheduling tunables (spec Stage F). */
+/** Periodic scheduling tunables. */
 export declare const ScheduleSchema: z.ZodObject<{
     enabled: z.ZodDefault<z.ZodBoolean>;
     checkIntervalMinutes: z.ZodDefault<z.ZodNumber>;
@@ -43,7 +43,7 @@ export declare const ScheduleSchema: z.ZodObject<{
         monthly: "monthly";
     }>>>;
 }, z.core.$strip>;
-/** Live collection tunables (spec Stage E). */
+/** Live collection tunables. */
 export declare const CollectionSchema: z.ZodObject<{
     enabled: z.ZodDefault<z.ZodBoolean>;
     summaryMaxChars: z.ZodDefault<z.ZodNumber>;

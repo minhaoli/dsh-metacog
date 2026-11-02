@@ -1,5 +1,5 @@
 /**
- * Stage G tools: report generation.
+ * Report generation tools.
  *
  * @module dsh-metacog/tools/report
  */

@@ -62,7 +62,7 @@ const DEFAULT_MAX_LATENCY_MINUTES = 10
  */
 const DEFAULT_RELATED_WEIGHT = 0.5
 
-/** Periodic in-process drift check interval, in minutes (spec Stage F). */
+/** Periodic in-process drift check interval, in minutes. */
 const DEFAULT_CHECK_INTERVAL_MINUTES = 25
 
 /** Realtime bare-LLM verdict cadence, in minutes (stage M1). */
@@ -119,7 +119,7 @@ export const ThresholdsSchema = z.object({
   judgmentLogThreshold: positiveInt(DEFAULT_JUDGMENT_LOG_THRESHOLD),
 })
 
-/** Periodic scheduling tunables (spec Stage F). */
+/** Periodic scheduling tunables. */
 export const ScheduleSchema = z.object({
   /** Master switch for the in-process periodic drift check. */
   enabled: z.boolean().default(true),
@@ -150,7 +150,7 @@ export const ScheduleSchema = z.object({
   autoReportTypes: z.array(z.enum(['daily', 'weekly', 'monthly'])).default(['daily', 'weekly']),
 })
 
-/** Live collection tunables (spec Stage E). */
+/** Live collection tunables. */
 export const CollectionSchema = z.object({
   /** Whether `session/event` is turned into activity records at all. */
   enabled: z.boolean().default(true),
@@ -382,7 +382,7 @@ export const ConfigSchema = z.object({
   storageSubdir: z.string().min(1).default('.metacog'),
   /** Periodic check / reminder configuration. */
   schedule: ScheduleSchema.prefault({}),
-  /** Live session-event collection (Stage E). */
+  /** Live session-event collection. */
   collection: CollectionSchema.prefault({}),
   /** Periodic bare-LLM verdict over the recent window (stage M1). */
   realtime: RealtimeSchema.prefault({}),

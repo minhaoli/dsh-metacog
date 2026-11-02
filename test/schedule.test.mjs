@@ -1,12 +1,12 @@
 /**
- * Stage F verification: periodic scheduling and teardown.
+ * Scheduling verification: periodic scheduling and teardown.
  *
  * The timer is injected through a fake host context, so the tests drive ticks
  * deterministically instead of waiting real minutes. What is asserted is the
  * lifecycle contract: a timer exists only when configured, each tick runs a
  * Grade C static sweep, and disposal leaves nothing behind.
  *
- * Run: node test/stage-f.test.mjs
+ * Run: node test/schedule.test.mjs
  */
 import { mkdtemp, mkdir, readdir, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
@@ -144,7 +144,7 @@ async function makeProject() {
   )
   await mkdir(join(root, 'docs'), { recursive: true })
   await writeFile(join(root, 'docs', 'design.md'), '# Design\n\nObservations are append-only.\n')
-  await writeFile(join(root, 'package.json'), JSON.stringify({ name: 'stage-f', version: '1.0.0' }, null, 2))
+  await writeFile(join(root, 'package.json'), JSON.stringify({ name: 'fixture-project', version: '1.0.0' }, null, 2))
   return root
 }
 
@@ -472,5 +472,5 @@ for (const root of fixtures) {
   }
 }
 
-console.log(`\n=== Stage F 结果: ${passed} passed, ${failed} failed ===`)
+console.log(`\n=== Scheduling 结果: ${passed} passed, ${failed} failed ===`)
 if (failed > 0) process.exitCode = 1

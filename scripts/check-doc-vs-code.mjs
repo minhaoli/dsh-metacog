@@ -8,7 +8,7 @@
  *
  * So this asserts the numbers in the doc are the ones the code actually holds.
  * It checks the *values*, not the wording, which is what makes it different from
- * `check-design-v4.mjs`.
+ * `check-design.mjs`.
  *
  * Run: node scripts/check-doc-vs-code.mjs   (after `npm run build`)
  */

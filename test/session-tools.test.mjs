@@ -1,12 +1,12 @@
 /**
- * Stage E verification: live collection from the host's `session/event` feed.
+ * Session tools verification: live collection from the host's `session/event` feed.
  *
  * The cases drive the real collector through a fake host context whose `on`
  * records the listener, so what is asserted is exactly what the host would
  * call. Nothing here reaches into module internals: every assertion reads the
  * store, which is what a later reader would see.
  *
- * Run: node test/stage-e.test.mjs
+ * Run: node test/session-tools.test.mjs
  */
 import { mkdtemp, mkdir, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
@@ -722,5 +722,5 @@ for (const root of fixtures) {
   }
 }
 
-console.log(`\n=== Stage E 结果: ${passed} passed, ${failed} failed ===`)
+console.log(`\n=== Session tools 结果: ${passed} passed, ${failed} failed ===`)
 if (failed > 0) process.exitCode = 1
